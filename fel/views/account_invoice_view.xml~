@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record model='ir.ui.view' id='account_invoice_form_view_inherit'>
+                <field name='name'>account.invoice.form.inherit</field>
+                <field name='model'>account.invoice</field>
+                <field name='inherit_id' ref='account.invoice_form'/>
+                <field name='type'>form</field>
+                <field name='arch' type='xml'>
+                        <xpath expr="//button[@name='action_invoice_draft']" position="after">
+                             <button name="ver_factura" string="Ver Factura FEL" type="object" attrs="{'invisible': [('uuid', '=', False)]}"/>
+                        </xpath>                
+                        <field name="fiscal_position_id" position="after">
+                                <field name="regimen_antiguo"  attrs="{'invisible': [('type', '!=', 'out_refund')]}"/>
+                                <field name="nota_abono"  attrs="{'invisible': [('type', '!=', 'out_refund')]}"/>
+                                <field name="tipo_f"/>
+                                <field name="uuid"/>
+                                <field name="serie"/>
+                                <field name="numero_dte"/>
+                                <field name="dte_fecha"/>
+                                <field name="letras"/>
+                                <field name="retencion"/>
+                        </field>
+                </field>
+        </record>
+        
+        <record model='ir.ui.view' id='account_invoice_form_view_inherit_supplier'>
+                <field name='name'>account.invoice.form.inherit.supplier</field>
+                <field name='model'>account.invoice</field>
+                <field name='inherit_id' ref='account.invoice_supplier_form'/>
+                <field name='type'>form</field>
+                <field name='arch' type='xml'>             
+                        <field name="fiscal_position_id" position="after">
+                                <field name="tipo_f"/>
+                        </field>
+                </field>
+        </record>        
+</odoo>
+

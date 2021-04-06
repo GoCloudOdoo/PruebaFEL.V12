@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record model='ir.ui.view' id='account_journal_form_view_inherit1'>
+                <field name='name'>account.journal.form.inherit2</field>
+                <field name='model'>account.journal</field>
+                <field name='inherit_id' ref='account.view_account_journal_form'/>
+                <field name='type'>form</field>
+                <field name='arch' type='xml'>
+                        <field name="code" position="before">
+                                <field name="is_eface"/>
+                        </field>
+                </field>
+        </record>
+
+        <record model='ir.ui.view' id='res_company_form_view_inherit1'>
+                <field name='name'>res.company.form.inherit2</field>
+                <field name='model'>res.company</field>
+                <field name='inherit_id' ref='base.view_company_form'/>
+                <field name='type'>form</field>
+                <field name='arch' type='xml'>
+                        <field name="vat" position="after">
+                                <field name="tipo"/>
+                                <field name="codigo"/>
+                                <field name="codigo_consignatario"/>
+                                <field name="codigo_exportador"/>
+                        </field>
+                </field>
+        </record>
+
+        <record model='ir.ui.view' id='res_partner_form_view_inherit12'>
+                <field name='name'>res.partner.form.inherit12</field>
+                <field name='model'>res.partner</field>
+                <field name='inherit_id' ref='base.view_partner_form'/>
+                <field name='type'>form</field>
+                <field name='arch' type='xml'>
+                        <field name="vat" position="after">
+                                <field name="codigo_comprador"/>
+                        </field>
+                        <field name="property_payment_term_id" position="after">
+                                <field name="tax_partner"/>
+                        </field>
+                </field>
+        </record>
+
+        <record model='ir.ui.view' id='product_imp_form_view_inherit'>
+                <field name='name'>product.template.form.inherit.tax</field>
+                <field name='model'>product.template</field>
+                <field name='inherit_id' ref='product.product_template_form_view'/>
+                <field name='type'>form</field>
+                <field name='arch' type='xml'>
+                        <field name="property_account_income_id" position="after">
+                                <field name="tax_product"/>
+                        </field>
+                </field>
+        </record>
+
+
+
+</odoo>
+
