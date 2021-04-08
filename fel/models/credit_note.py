@@ -139,6 +139,7 @@ def set_data_for_invoice_credit(self):
         ET.SubElement(ade, "ORIGEN").text = self.origin
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
         ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
+        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name        
         ET.SubElement(ade, "TELEFONO").text = telefono 
         cont = ET.tostring(root, encoding="UTF-8", method='xml')
         buscar = "ns0"
