@@ -140,6 +140,7 @@ class AccountInvoice(models.Model):
         ET.SubElement(ade, "ORIGEN").text = self.origin
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
         ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
+        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name        
         ET.SubElement(ade, "TELEFONO").text = telefono 
 
 
@@ -157,7 +158,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def send_data_api_special(self, xml_data=None):
-        api = self.env['api.data.configuration'].search([('user_id', '=', self.user_id.id)], limit=1)        
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)        
         if not api:
             return False
         XML = xml_data

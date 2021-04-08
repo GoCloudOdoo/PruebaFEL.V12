@@ -40,7 +40,7 @@ class AccountInvoice(models.Model):
         dem = ET.SubElement(dte, "{" + xmlns + "}DatosEmision", ID="DatosEmision")
         fecha_emision = dt.datetime.now(gettz("America/Guatemala")).__format__('%Y-%m-%dT%H:%M:%S.%f')[:-3]
         dge = ET.SubElement(dem, "{" + xmlns + "}DatosGenerales", CodigoMoneda="GTQ",  FechaHoraEmision=fecha_emision, Tipo="FCAM")
-        api = self.env['api.data.configuration'].search([('user_id', '=', self.user_id.id)], limit=1)
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
             return False          
         emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email, NITEmisor=self.company_id.vat, NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
@@ -164,7 +164,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def send_data_api_cambiaria(self, xml_data=None):
-        api = self.env['api.data.configuration'].search([('user_id', '=', self.user_id.id)], limit=1)        
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)        
         if not api:
             return False
         XML = xml_data
