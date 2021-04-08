@@ -8,7 +8,7 @@ class AccountJournal(models.Model):
         _inherit = "account.journal"
 
         is_eface = fields.Boolean('Factura Electronica', required=False, help="Marque si este diario utilizara emision de facturas electronica")
-        code_est = fields.Char(string="Codigo Establecimiento", required=True)
+        code_est = fields.Char(string="Codigo Establecimiento", required=True, default="0")
 
 AccountJournal()
 
