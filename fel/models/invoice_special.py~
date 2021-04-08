@@ -125,6 +125,13 @@ class AccountInvoice(models.Model):
         date_due = datetime.strptime(str(date_due), '%Y-%m-%d')
         formato2 = "%d-%m-%Y"
         date_due = date_due.strftime(formato2)
+        phone = " "
+        mobile = " " 
+        if self.partner_id.phone:
+           phone = self.partner_id.phone
+        if self.partner_id.mobile:
+           mobile = self.partner_id.mobile
+        telefono = phone + " " + mobile        
         ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
         ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name        
         ET.SubElement(ade, "NOTAS").text = self.comment
@@ -133,7 +140,7 @@ class AccountInvoice(models.Model):
         ET.SubElement(ade, "ORIGEN").text = self.origin
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
         ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-        ET.SubElement(ade, "TELEFONO").text = self.partner_id.phone + " " + self.partner_id.mobile
+        ET.SubElement(ade, "TELEFONO").text = telefono 
 
 
         cont = ET.tostring(root, encoding="UTF-8", method='xml')

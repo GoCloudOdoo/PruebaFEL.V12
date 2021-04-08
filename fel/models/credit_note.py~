@@ -81,7 +81,7 @@ def set_data_for_invoice_credit(self):
 
             ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
             ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
-            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = line.name or " "
+            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " | " + str(line.product_id.name)
             ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Precio").text = str(line.quantity * line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Descuento").text = str(round((line.discount * (line.quantity * line.price_unit))/100,2))
@@ -124,6 +124,13 @@ def set_data_for_invoice_credit(self):
         date_due = datetime.strptime(str(date_due), '%Y-%m-%d')
         formato2 = "%d-%m-%Y"
         date_due = date_due.strftime(formato2)
+        phone = " "
+        mobile = " " 
+        if self.partner_id.phone:
+           phone = self.partner_id.phone
+        if self.partner_id.mobile:
+           mobile = self.partner_id.mobile
+        telefono = phone + " " + mobile        
         ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
         ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name        
         ET.SubElement(ade, "NOTAS").text = self.comment
@@ -132,7 +139,7 @@ def set_data_for_invoice_credit(self):
         ET.SubElement(ade, "ORIGEN").text = self.origin
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
         ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-        ET.SubElement(ade, "TELEFONO").text = self.partner_id.phone + " " + self.partner_id.mobile 
+        ET.SubElement(ade, "TELEFONO").text = telefono 
         cont = ET.tostring(root, encoding="UTF-8", method='xml')
         buscar = "ns0"
         buscar2 = "ns2"
