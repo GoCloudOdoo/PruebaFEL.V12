@@ -8,7 +8,6 @@ import datetime as dt
 import dateutil.parser
 from dateutil.tz import gettz
 from dateutil import parser
-from odoo.addons.fel import numero_a_texto
 import json
 from odoo.exceptions import AccessError, UserError, RedirectWarning, ValidationError, Warning
 import logging
@@ -38,7 +37,7 @@ def set_data_for_invoice_abono(self):
         dge = ET.SubElement(dem, "{" + xmlns + "}DatosGenerales", CodigoMoneda="GTQ",  FechaHoraEmision=fecha_emision, Tipo="NABN")
         api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
-            return False         
+            return False
         emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email, NITEmisor=self.company_id.vat, NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
         dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
         ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api.direccion
@@ -100,22 +99,22 @@ def set_data_for_invoice_abono(self):
         formato2 = "%d-%m-%Y"
         date_due = date_due.strftime(formato2)
         phone = " "
-        mobile = " " 
+        mobile = " "
         if self.partner_id.phone:
            phone = self.partner_id.phone
         if self.partner_id.mobile:
            mobile = self.partner_id.mobile
-        telefono = phone + " " + mobile        
+        telefono = phone + " " + mobile
         ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
-        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name        
+        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name
         ET.SubElement(ade, "NOTAS").text = self.comment
         ET.SubElement(ade, "REFERENCIA").text = self.reference
         ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name
         ET.SubElement(ade, "ORIGEN").text = self.origin
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
         ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name        
-        ET.SubElement(ade, "TELEFONO").text = telefono 
+        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name
+        ET.SubElement(ade, "TELEFONO").text = telefono
 
         cont = ET.tostring(root, encoding="UTF-8", method='xml')
         buscar = "ns0"
@@ -128,7 +127,7 @@ def set_data_for_invoice_abono(self):
 
 @api.multi
 def send_data_api_abono(self, xml_data):
-        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)        
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
             return False
         XML = xml_data
