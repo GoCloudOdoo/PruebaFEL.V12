@@ -18,7 +18,6 @@
                                 <field name="numero_dte"/>
                                 <field name="dte_fecha"/>
                                 <field name="letras"/>
-                                <field name="retencion"/>
                         </field>
                 </field>
         </record>
@@ -29,8 +28,19 @@
                 <field name='inherit_id' ref='account.invoice_supplier_form'/>
                 <field name='type'>form</field>
                 <field name='arch' type='xml'>             
+                        <xpath expr="//button[@name='action_invoice_draft']" position="after">
+                             <button name="ver_factura" string="Ver Factura FEL" type="object" attrs="{'invisible': [('uuid', '=', False)]}"/>
+                        </xpath>                
                         <field name="fiscal_position_id" position="after">
-                                <field name="tipo_f"/>
+                                <field name="regimen_antiguo"  attrs="{'invisible': [('type', '!=', 'out_refund')]}"/>
+                                <field name="nota_abono"  attrs="{'invisible': [('type', '!=', 'out_refund')]}"/>
+                                <field name="tipo_s"/>
+                                <field name="uuid"/>
+                                <field name="serie"/>
+                                <field name="numero_dte"/>
+                                <field name="dte_fecha"/>
+                                <field name="letras"/>
+                                <field name="retencion"/>
                         </field>
                 </field>
         </record>        
