@@ -3,7 +3,6 @@
 from odoo import api, models, fields, _
 import xml.etree.cElementTree as ET
 from datetime import datetime, timedelta
-from lxml import etree
 import datetime as dt
 import dateutil.parser
 from dateutil.tz import gettz
@@ -34,29 +33,29 @@ class AccountInvoice(models.Model):
     letras = fields.Text("Total Letras", readonly=True, states={'draft': [('readonly', False)]})
     tipo_f = fields.Selection([
         ('normal', 'Factura Normal'),
-        ('cambiaria', 'Factura Cambiaria'),       
+        ('cambiaria', 'Factura Cambiaria'),
         ], string='Tipo Factura', default='normal', readonly=True, states={'draft': [('readonly', False)]})
     regimen_antiguo = fields.Boolean(string="Nota de credito rebajando regimen antiguo", readonly=True, states={'draft': [('readonly', False)]}, default=False)
     nota_abono = fields.Boolean(string="Nota de Abono", readonly=True, states={'draft': [('readonly', False)]}, default=False)
     retencion = fields.Float(string="Retencion", readonly=True, states={'draft': [('readonly', False)]})
     tipo_s = fields.Selection([
-        ('especial', 'Factura Especial'),        
-        ], string='Tipo Factura', readonly=True, states={'draft': [('readonly', False)]})    
+        ('especial', 'Factura Especial'),
+        ], string='Tipo Factura', readonly=True, states={'draft': [('readonly', False)]})
 
     @api.multi
     def ver_factura(self):
         for invoice in self:
             uuid = invoice.uuid
             if not uuid:
-                return False 
+                return False
         sitio ={  'name'     : 'Ver Factura',
                   'res_model': 'ir.actions.act_url',
                   'type'     : 'ir.actions.act_url',
                   'target'   : 'new',
                   'url'      : 'https://report.feel.com.gt/ingfacereport/ingfacereport_documento?uuid='+uuid
                }
-        return sitio    
-    
+        return sitio
+
     @api.multi
     def action_invoice_open(self):
         if self.journal_id.is_eface == False:
@@ -78,7 +77,7 @@ class AccountInvoice(models.Model):
               formato2 = "%Y-%m-%d %H:%M:%S"
               myTime = myTime.strftime(formato2)
               self.dte_fecha = myTime
-                            
+
            if self.tipo_f == 'cambiaria':
               xml_data = self.set_data_for_invoice_cambiaria()
               self.letras = str(numero_a_texto.Numero_a_Texto(self.amount_total))
@@ -94,7 +93,7 @@ class AccountInvoice(models.Model):
               formato2 = "%Y-%m-%d %H:%M:%S"
               myTime = myTime.strftime(formato2)
               self.dte_fecha = myTime
-           
+
         if self.type == "in_invoice":
            if self.tipo_s == 'especial':
               xml_data = self.set_data_for_invoice_special()
@@ -110,7 +109,7 @@ class AccountInvoice(models.Model):
               myTime = myTime + racion_de_6h
               formato2 = "%Y-%m-%d %H:%M:%S"
               myTime = myTime.strftime(formato2)
-              self.dte_fecha = myTime           
+              self.dte_fecha = myTime
 
         if self.type == "out_refund" and self.refund_invoice_id.uuid:
            xml_data = credit_note.set_data_for_invoice_credit(self)
@@ -183,15 +182,14 @@ class AccountInvoice(models.Model):
         dge = ET.SubElement(dem, "{" + xmlns + "}DatosGenerales", CodigoMoneda="GTQ",  FechaHoraEmision=fecha_emision, Tipo="FACT")
         api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
-            return False        
-        emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email, NITEmisor=self.company_id.vat, NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
+            return False
+        emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email or '', NITEmisor=self.company_id.vat or '', NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
         dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
-        ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api.direccion
+        ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api.direccion or ''
         ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = self.company_id.zip or "01009"
         ET.SubElement(dire, "{" + xmlns + "}Municipio").text = self.company_id.city or "Guatemala"
         ET.SubElement(dire, "{" + xmlns + "}Departamento").text = self.company_id.state_id.name or "Guatemala"
-        ET.SubElement(dire, "{" + xmlns + "}Pais").text = self.company_id.country_id.code or "GT"        
-        
+        ET.SubElement(dire, "{" + xmlns + "}Pais").text = self.company_id.country_id.code or "GT"
 
         if self.partner_id.vat:
            vat = self.partner_id.vat
@@ -252,7 +250,6 @@ class AccountInvoice(models.Model):
             else:
                 raise UserError(_("Las líneas de Factura deben de llevar impuesto (IVA)."))
 
-            print("subtotal:", str(round(line.price_total,2)))
             impuestos = ET.SubElement(item, "{" + xmlns + "}Impuestos")
             impuesto = ET.SubElement(impuestos, "{" + xmlns + "}Impuesto")
             price_tax = line.price_total - line.price_subtotal
@@ -280,22 +277,22 @@ class AccountInvoice(models.Model):
         formato2 = "%d-%m-%Y"
         date_due = date_due.strftime(formato2)
         phone = " "
-        mobile = " " 
+        mobile = " "
         if self.partner_id.phone:
            phone = self.partner_id.phone
         if self.partner_id.mobile:
            mobile = self.partner_id.mobile
-        telefono = phone + " " + mobile        
-        ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
-        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name        
-        ET.SubElement(ade, "NOTAS").text = self.comment
-        ET.SubElement(ade, "REFERENCIA").text = self.reference
-        ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name
-        ET.SubElement(ade, "ORIGEN").text = self.origin
-        ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
-        ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name        
-        ET.SubElement(ade, "TELEFONO").text = telefono                                                
+        telefono = phone + " " + mobile
+        ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due or ''
+        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name or ''
+        ET.SubElement(ade, "NOTAS").text = self.comment or ''
+        ET.SubElement(ade, "REFERENCIA").text = self.reference or ''
+        ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name or ''
+        ET.SubElement(ade, "ORIGEN").text = self.origin or ''
+        ET.SubElement(ade, "VENDEDOR").text = self.user_id.name or ''
+        ET.SubElement(ade, "NUMERO-INTERNO").text = self.number or ''
+        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name or ''
+        ET.SubElement(ade, "TELEFONO").text = telefono
         cont = ET.tostring(root, encoding="UTF-8", method='xml')
         buscar = "ns0"
         rmpl = "dte"
@@ -307,7 +304,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def send_data_api(self, xml_data=None):
-        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)        
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
             return False
         XML = xml_data
@@ -323,7 +320,7 @@ class AccountInvoice(models.Model):
         rp = response.json()
 
         dt = rp["archivo"]
-        url = api.url_certificado  
+        url = api.url_certificado
         payload = {
             'nit_emisor': self.company_id.vat,
             'correo_copia': self.company_id.email,
@@ -370,14 +367,14 @@ class AccountInvoice(models.Model):
         dge = ET.SubElement(dem, "{" + xmlns + "}DatosGenerales", CodigoMoneda="GTQ",  FechaHoraEmision=fecha_emision, Tipo="FCAM")
         api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
-            return False          
-        emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email, NITEmisor=self.company_id.vat, NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
+            return False
+        emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email or '', NITEmisor=self.company_id.vat or '', NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
         dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
         ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api.direccion
         ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = self.company_id.zip or "01009"
         ET.SubElement(dire, "{" + xmlns + "}Municipio").text = self.company_id.city or "Guatemala"
         ET.SubElement(dire, "{" + xmlns + "}Departamento").text = self.company_id.state_id.name or "Guatemala"
-        ET.SubElement(dire, "{" + xmlns + "}Pais").text = self.company_id.country_id.code or "GT" 
+        ET.SubElement(dire, "{" + xmlns + "}Pais").text = self.company_id.country_id.code or "GT"
 
         if self.partner_id.vat:
            vat = self.partner_id.vat
@@ -461,22 +458,22 @@ class AccountInvoice(models.Model):
         formato2 = "%d-%m-%Y"
         date_due = date_due.strftime(formato2)
         phone = " "
-        mobile = " " 
+        mobile = " "
         if self.partner_id.phone:
            phone = self.partner_id.phone
         if self.partner_id.mobile:
            mobile = self.partner_id.mobile
-        telefono = phone + " " + mobile        
+        telefono = phone + " " + mobile
         ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
-        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name        
-        ET.SubElement(ade, "NOTAS").text = self.comment
-        ET.SubElement(ade, "REFERENCIA").text = self.reference
-        ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name
-        ET.SubElement(ade, "ORIGEN").text = self.origin
+        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name or ''
+        ET.SubElement(ade, "NOTAS").text = self.comment or ''
+        ET.SubElement(ade, "REFERENCIA").text = self.reference or ''
+        ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name or ''
+        ET.SubElement(ade, "ORIGEN").text = self.origin or ''
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
-        ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name        
-        ET.SubElement(ade, "TELEFONO").text = telefono 
+        ET.SubElement(ade, "NUMERO-INTERNO").text = self.number or ''
+        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name
+        ET.SubElement(ade, "TELEFONO").text = telefono
 
         cont = ET.tostring(root, encoding="UTF-8", method='xml')
         buscar = "ns0"
@@ -492,7 +489,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def send_data_api_cambiaria(self, xml_data=None):
-        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)        
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
             return False
         XML = xml_data
@@ -508,7 +505,7 @@ class AccountInvoice(models.Model):
         rp = response.json()
 
         dt = rp["archivo"]
-        url = api.url_certificado  
+        url = api.url_certificado
         payload = {
             'nit_emisor': self.company_id.vat,
             'correo_copia': self.company_id.email,
@@ -534,7 +531,7 @@ class AccountInvoice(models.Model):
         if cantidad_errores>0:
             raise UserError(_("You cannot validate an invoice\n Error No:%s\n %s."% (cantidad_errores,descripcion_errores)))
         return uuid, serie, numero_dte, dte_fecha
-        
+
     @api.multi
     def set_data_for_invoice_special(self):
 
@@ -556,8 +553,8 @@ class AccountInvoice(models.Model):
         dge = ET.SubElement(dem, "{" + xmlns + "}DatosGenerales", CodigoMoneda="GTQ",  FechaHoraEmision=fecha_emision, Tipo="FESP")
         api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
-            return False        
-        emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email, NITEmisor=self.company_id.vat, NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
+            return False
+        emi = ET.SubElement(dem, "{" + xmlns + "}Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=api.code_est, CorreoEmisor=self.company_id.email or '', NITEmisor=self.company_id.vat or '', NombreComercial=api.nombre, NombreEmisor=self.company_id.name)
         dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
         ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api.direccion
         ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = self.company_id.zip or "01009"
@@ -639,22 +636,22 @@ class AccountInvoice(models.Model):
         formato2 = "%d-%m-%Y"
         date_due = date_due.strftime(formato2)
         phone = " "
-        mobile = " " 
+        mobile = " "
         if self.partner_id.phone:
            phone = self.partner_id.phone
         if self.partner_id.mobile:
            mobile = self.partner_id.mobile
-        telefono = phone + " " + mobile        
+        telefono = phone + " " + mobile
         ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
-        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name        
-        ET.SubElement(ade, "NOTAS").text = self.comment
-        ET.SubElement(ade, "REFERENCIA").text = self.reference
-        ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name
-        ET.SubElement(ade, "ORIGEN").text = self.origin
+        ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name or ''
+        ET.SubElement(ade, "NOTAS").text = self.comment or ''
+        ET.SubElement(ade, "REFERENCIA").text = self.reference or ''
+        ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name or ''
+        ET.SubElement(ade, "ORIGEN").text = self.origin or ''
         ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
-        ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name        
-        ET.SubElement(ade, "TELEFONO").text = telefono 
+        ET.SubElement(ade, "NUMERO-INTERNO").text = self.number or ''
+        ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name
+        ET.SubElement(ade, "TELEFONO").text = telefono
 
 
         cont = ET.tostring(root, encoding="UTF-8", method='xml')
@@ -671,7 +668,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def send_data_api_special(self, xml_data=None):
-        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)        
+        api = self.env['api.data.configuration'].search([('code_est', '=', self.journal_id.code_est)], limit=1)
         if not api:
             return False
         XML = xml_data
@@ -687,7 +684,7 @@ class AccountInvoice(models.Model):
         rp = response.json()
 
         dt = rp["archivo"]
-        url = api.url_certificado  
+        url = api.url_certificado
         payload = {
             'nit_emisor': self.company_id.vat,
             'correo_copia': self.company_id.email,
@@ -713,4 +710,4 @@ class AccountInvoice(models.Model):
         descripcion_errores = rp["descripcion_errores"]
         if cantidad_errores>0:
             raise UserError(_("You cannot validate an invoice\n Error No:%s\n %s."% (cantidad_errores,descripcion_errores)))
-        return uuid, serie, numero_dte, dte_fecha        
+        return uuid, serie, numero_dte, dte_fecha
