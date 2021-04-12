@@ -22,4 +22,3 @@
 
 #from . import wizard
 from . import models
-from . import numero_a_texto

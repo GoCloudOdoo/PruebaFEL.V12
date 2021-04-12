@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 import datetime as dt
 import dateutil.parser
 from dateutil.tz import gettz
-from dateutil import parser
-from odoo.addons.fel import numero_a_texto
 from odoo.addons.fel.models import credit_note
 from odoo.addons.fel.models import invoice_cancel
 from odoo.addons.fel.models import nota_abono
@@ -64,7 +62,7 @@ class AccountInvoice(models.Model):
         if self.type == "out_invoice":
            if self.tipo_f == 'normal':
               xml_data = self.set_data_for_invoice()
-              self.letras = str(numero_a_texto.Numero_a_Texto(self.amount_total))
+              self.letras = self.l10n_gt_edi_amount_to_text()
               uuid, serie, numero_dte, dte_fecha =self.send_data_api(xml_data)
               message = _("Facturacion Electronica %s: Serie %s  Numero %s") % (self.tipo_f, serie, numero_dte)
               self.message_post(body=message)
@@ -80,7 +78,7 @@ class AccountInvoice(models.Model):
 
            if self.tipo_f == 'cambiaria':
               xml_data = self.set_data_for_invoice_cambiaria()
-              self.letras = str(numero_a_texto.Numero_a_Texto(self.amount_total))
+              self.letras = self.l10n_gt_edi_amount_to_text()
               uuid, serie, numero_dte, dte_fecha =self.send_data_api_cambiaria(xml_data)
               message = _("Facturacion Electronica %s: Serie %s  Numero %s") % (self.tipo_f, serie, numero_dte)
               self.message_post(body=message)
@@ -97,7 +95,7 @@ class AccountInvoice(models.Model):
         if self.type == "in_invoice":
            if self.tipo_s == 'especial':
               xml_data = self.set_data_for_invoice_special()
-              self.letras = str(numero_a_texto.Numero_a_Texto(self.amount_total))
+              self.letras = self.l10n_gt_edi_amount_to_text()
               uuid, serie, numero_dte, dte_fecha =self.send_data_api_special(xml_data)
               message = _("Facturacion Electronica Especial: Serie %s  Numero %s") % (serie, numero_dte)
               self.message_post(body=message)
@@ -113,7 +111,7 @@ class AccountInvoice(models.Model):
 
         if self.type == "out_refund" and self.refund_invoice_id.uuid:
            xml_data = credit_note.set_data_for_invoice_credit(self)
-           self.letras = str(numero_a_texto.Numero_a_Texto(self.amount_total))
+           self.letras = self.l10n_gt_edi_amount_to_text()
            uuid, serie, numero_dte, dte_fecha =credit_note.send_data_api_credit(self, xml_data)
            message = _("Nota de Credito: Serie %s  Numero %s") % (serie, numero_dte)
            self.message_post(body=message)
@@ -129,7 +127,7 @@ class AccountInvoice(models.Model):
 
         if self.type == "out_refund" and self.nota_abono == True:
            xml_data = nota_abono.set_data_for_invoice_abono(self)
-           self.letras = str(numero_a_texto.Numero_a_Texto(self.amount_total))
+           self.letras = self.l10n_gt_edi_amount_to_text()
            uuid, serie, numero_dte, dte_fecha =nota_abono.send_data_api_abono(self, xml_data)
            message = _("Nota de Abono: Serie %s  Numero %s") % (serie, numero_dte)
            self.message_post(body=message)
@@ -711,3 +709,20 @@ class AccountInvoice(models.Model):
         if cantidad_errores>0:
             raise UserError(_("You cannot validate an invoice\n Error No:%s\n %s."% (cantidad_errores,descripcion_errores)))
         return uuid, serie, numero_dte, dte_fecha
+
+    @api.multi
+    def l10n_gt_edi_amount_to_text(self):
+        """Method to transform a float amount to text words
+        E.g. 100 - ONE HUNDRED
+        :returns: Amount transformed to words GT format for invoices
+        :rtype: str
+        """
+        self.ensure_one()
+        # Split integer and decimal part
+        amount_i, amount_d = divmod(self.amount_total, 1)
+        amount_d = round(amount_d, 2)
+        amount_d = int(round(amount_d * 100, 2))
+        words = self.currency_id.with_context(lang=self.partner_id.lang or 'es_ES').amount_to_text(amount_i)
+        invoice_words = '%(words)s %(amount_d)02d/100' % dict(
+            words=words, amount_d=amount_d)
+        return invoice_words
