@@ -235,7 +235,7 @@ class AccountInvoice(models.Model):
 
             ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
             ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
-            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " | " + str(line.product_id.name)
+            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " |" + str(line.product_id.name)
             ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Precio").text = str(round(line.quantity * line.price_unit, 2))
             ET.SubElement(item, "{" + xmlns + "}Descuento").text = str(round((line.discount * (line.quantity * line.price_unit))/100,2))
@@ -414,7 +414,7 @@ class AccountInvoice(models.Model):
 
             ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
             ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
-            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " | " + str(line.product_id.name)
+            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " |" + str(line.product_id.name)
             ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Precio").text = str(line.quantity * line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Descuento").text = str(round((line.discount * (line.quantity * line.price_unit))/100,2))
@@ -596,7 +596,7 @@ class AccountInvoice(models.Model):
 
             ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
             ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
-            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " | " + str(line.product_id.name)
+            ET.SubElement(item, "{" + xmlns + "}Descripcion").text = str(line.product_id.default_code) + " |" + str(line.product_id.name)
             ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Precio").text = str(line.quantity * line.price_unit)
             ET.SubElement(item, "{" + xmlns + "}Descuento").text = str(round((line.discount * (line.quantity * line.price_unit))/100,2))
