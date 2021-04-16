@@ -6,10 +6,7 @@ from datetime import datetime, timedelta
 import datetime as dt
 import dateutil.parser
 from dateutil.tz import gettz
-from odoo.addons.fel.models import credit_note
-from odoo.addons.fel.models import invoice_cancel
-#from odoo.addons.fel.models import nota_abono
-from . import nota_abono
+from . import credit_note, invoice_cancel, nota_abono
 import json
 from odoo.exceptions import AccessError, UserError, RedirectWarning, ValidationError, Warning
 import logging
