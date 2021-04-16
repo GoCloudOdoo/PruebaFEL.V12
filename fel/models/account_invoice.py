@@ -8,7 +8,7 @@ import dateutil.parser
 from dateutil.tz import gettz
 from odoo.addons.fel.models import credit_note
 from odoo.addons.fel.models import invoice_cancel
-from .models import nota_abono
+from odoo.addons.fel.models import nota_abono
 import json
 from odoo.exceptions import AccessError, UserError, RedirectWarning, ValidationError, Warning
 import logging
