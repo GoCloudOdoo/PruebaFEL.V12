@@ -50,71 +50,71 @@ def set_data_for_invoice_abono(self):
         NombreComercial=api_fel.nombre,
         NombreEmisor=self.company_id.name,
     )
-    dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
-    ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api_fel.direccion
-    ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = (
+    dire_a = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
+    ET.SubElement(dire_a, "{" + xmlns + "}Direccion").text = api_fel.direccion
+    ET.SubElement(dire_a, "{" + xmlns + "}CodigoPostal").text = (
         self.company_id.zip or "01009"
     )
-    ET.SubElement(dire, "{" + xmlns + "}Municipio").text = (
+    ET.SubElement(dire_a, "{" + xmlns + "}Municipio").text = (
         self.company_id.city or "Guatemala"
     )
-    ET.SubElement(dire, "{" + xmlns + "}Departamento").text = (
+    ET.SubElement(dire_a, "{" + xmlns + "}Departamento").text = (
         self.company_id.state_id.name or "Guatemala"
     )
-    ET.SubElement(dire, "{" + xmlns + "}Pais").text = (
+    ET.SubElement(dire_a, "{" + xmlns + "}Pais").text = (
         self.company_id.country_id.code or "GT"
     )
 
     if self.partner_id.vat:
         vat = self.partner_id.vat
         vat = re.sub(r"[\?!:/;. -]","", vat)
-        vat = vat.upper()
+        vat_a = vat.upper()
     else:
-        vat = "CF"
+        vat_a = "CF"
 
     rece = ET.SubElement(
         dem,
         "{" + xmlns + "}Receptor",
         CorreoReceptor=self.partner_id.email or "",
-        IDReceptor=vat,
+        IDReceptor=vat_a,
         NombreReceptor=self.partner_id.name,
     )
-    direc = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
-    ET.SubElement(direc, "{" + xmlns + "}Direccion").text = (
+    direc_a = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
+    ET.SubElement(direc_a, "{" + xmlns + "}Direccion").text = (
         self.partner_id.street or "Ciudad"
     )
-    ET.SubElement(direc, "{" + xmlns + "}CodigoPostal").text = (
+    ET.SubElement(direc_a, "{" + xmlns + "}CodigoPostal").text = (
         self.partner_id.zip or "01009"
     )
-    ET.SubElement(direc, "{" + xmlns + "}Municipio").text = (
+    ET.SubElement(direc_a, "{" + xmlns + "}Municipio").text = (
         self.partner_id.city or "Guatemala"
     )
-    ET.SubElement(direc, "{" + xmlns + "}Departamento").text = (
+    ET.SubElement(direc_a, "{" + xmlns + "}Departamento").text = (
         self.partner_id.state_id.name or "Guatemala"
     )
-    ET.SubElement(direc, "{" + xmlns + "}Pais").text = (
+    ET.SubElement(direc_a, "{" + xmlns + "}Pais").text = (
         self.partner_id.country_id.code or "GT"
     )
 
-    invoice_line = self.invoice_line_ids
+    invoice_ln = self.invoice_line_ids
     items = ET.SubElement(dem, "{" + xmlns + "}Items")
     cnt = 0
     # LineasFactura
-    for line in invoice_line:
+    for line in invoice_ln:
         cnt += 1
-        bos = "B"
+        bien = "B"
         if line.product_id.type == "service":
-            bos = "S"
+            bien = "S"
 
         # Item
         item = ET.SubElement(
-            items, "{" + xmlns + "}Item", BienOServicio=bos, NumeroLinea=str(cnt)
+            items, "{" + xmlns + "}Item", BienOServicio=bien, NumeroLinea=str(cnt)
         )
 
         ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
         ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
         ET.SubElement(item, "{" + xmlns + "}Descripcion").text = (
-            str(line.product_id.default_code) + " |" + str(line.product_id.name)
+            str(line.product_id.default_code) + "|" + str(line.product_id.name)
         )
         ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(line.price_unit)
         ET.SubElement(item, "{" + xmlns + "}Precio").text = str(

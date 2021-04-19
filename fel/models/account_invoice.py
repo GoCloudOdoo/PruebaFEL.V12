@@ -228,23 +228,23 @@ class AccountInvoice(models.Model):
 
         xmlns = "http://www.sat.gob.gt/dte/fel/0.2.0"
         xsi = "http://www.w3.org/2001/XMLSchema-instance"
-        schemalocation = "http://www.sat.gob.gt/dte/fel/0.2.0"
+        schemalocationn = "http://www.sat.gob.gt/dte/fel/0.2.0"
         root = ET.Element(
             "{" + xmlns + "}GTDocumento",
             Version="0.1",
-            attrib={"{" + xsi + "}schemaLocation": schemalocation},
+            attrib={"{" + xsi + "}schemaLocation": schemalocationn},
         )
         doc = ET.SubElement(root, "{" + xmlns + "}SAT", ClaseDocumento="dte")
         dte = ET.SubElement(doc, "{" + xmlns + "}DTE", ID="DatosCertificados")
         dem = ET.SubElement(dte, "{" + xmlns + "}DatosEmision", ID="DatosEmision")
-        fecha_emision = dt.datetime.now(gettz("America/Guatemala")).__format__(
+        fecha_emisionn = dt.datetime.now(gettz("America/Guatemala")).__format__(
             "%Y-%m-%dT%H:%M:%S.%f"
         )[:-3]
         ET.SubElement(
             dem,
             "{" + xmlns + "}DatosGenerales",
             CodigoMoneda="GTQ",
-            FechaHoraEmision=fecha_emision,
+            FechaHoraEmision=fecha_emisionn,
             Tipo="FACT",
         )
         api_fel = self.env["api.data.configuration"].search(
@@ -279,9 +279,8 @@ class AccountInvoice(models.Model):
 
         if self.partner_id.vat:
             vat = self.partner_id.vat
-            #vat = re.sub("\ |\?|\.|\!|\/|\;|\:|\-", "", vat)
             vat = re.sub(r"[\?!:/;. -]","", vat)
-            vat = vat.upper()
+            nit = vat.upper()
         else:
             vat = "CF"
 
@@ -289,23 +288,23 @@ class AccountInvoice(models.Model):
             dem,
             "{" + xmlns + "}Receptor",
             CorreoReceptor=self.partner_id.email or "",
-            IDReceptor=vat,
+            IDReceptor=nit,
             NombreReceptor=self.partner_id.name,
         )
-        direc = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
-        ET.SubElement(direc, "{" + xmlns + "}Direccion").text = (
+        direc_n = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
+        ET.SubElement(direc_n, "{" + xmlns + "}Direccion").text = (
             self.partner_id.street or "Ciudad"
         )
-        ET.SubElement(direc, "{" + xmlns + "}CodigoPostal").text = (
+        ET.SubElement(direc_n, "{" + xmlns + "}CodigoPostal").text = (
             self.partner_id.zip or "01009"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Municipio").text = (
+        ET.SubElement(direc_n, "{" + xmlns + "}Municipio").text = (
             self.partner_id.city or "Guatemala"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Departamento").text = (
+        ET.SubElement(direc_n, "{" + xmlns + "}Departamento").text = (
             self.partner_id.state_id.name or "Guatemala"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Pais").text = (
+        ET.SubElement(direc_n, "{" + xmlns + "}Pais").text = (
             self.partner_id.country_id.code or "GT"
         )
 
@@ -335,19 +334,19 @@ class AccountInvoice(models.Model):
         # LineasFactura
         for line in invoice_line:
             cnt += 1
-            bos = "B"
+            bo = "B"
             if line.product_id.type == "service":
-                bos = "S"
+                bo = "S"
 
             # Item
             item = ET.SubElement(
-                items, "{" + xmlns + "}Item", BienOServicio=bos, NumeroLinea=str(cnt)
+                items, "{" + xmlns + "}Item", BienOServicio=bo, NumeroLinea=str(cnt)
             )
 
             ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
             ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
             ET.SubElement(item, "{" + xmlns + "}Descripcion").text = (
-                str(line.product_id.default_code) + " |" + str(line.product_id.name)
+                str(line.product_id.default_code) + "|" + str(line.product_id.name)
             )
             ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(
                 line.price_unit
@@ -443,26 +442,26 @@ class AccountInvoice(models.Model):
 
         xmlns = "http://www.sat.gob.gt/dte/fel/0.2.0"
         xsi = "http://www.w3.org/2001/XMLSchema-instance"
-        schemalocation = "http://www.sat.gob.gt/dte/fel/0.2.0"
+        sschemalocation = "http://www.sat.gob.gt/dte/fel/0.2.0"
         cno = "http://www.sat.gob.gt/dte/fel/CompCambiaria/0.1.0"
         uri = "http://www.sat.gob.gt/fel/cambiaria.xsd"
 
         root = ET.Element(
             "{" + xmlns + "}GTDocumento",
             Version="0.1",
-            attrib={"{" + xsi + "}schemaLocation": schemalocation},
+            attrib={"{" + xsi + "}schemaLocation": sschemalocation},
         )
         doc = ET.SubElement(root, "{" + xmlns + "}SAT", ClaseDocumento="dte")
         dte = ET.SubElement(doc, "{" + xmlns + "}DTE", ID="DatosCertificados")
         dem = ET.SubElement(dte, "{" + xmlns + "}DatosEmision", ID="DatosEmision")
-        fecha_emision = dt.datetime.now(gettz("America/Guatemala")).__format__(
+        ffecha_emision = dt.datetime.now(gettz("America/Guatemala")).__format__(
             "%Y-%m-%dT%H:%M:%S.%f"
         )[:-3]
         ET.SubElement(
             dem,
             "{" + xmlns + "}DatosGenerales",
             CodigoMoneda="GTQ",
-            FechaHoraEmision=fecha_emision,
+            FechaHoraEmision=ffecha_emision,
             Tipo="FCAM",
         )
         api_fel = self.env["api.data.configuration"].search(
@@ -480,50 +479,49 @@ class AccountInvoice(models.Model):
             NombreComercial=api_fel.nombre,
             NombreEmisor=self.company_id.name,
         )
-        dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
-        ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api_fel.direccion
-        ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = (
+        dire_c = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
+        ET.SubElement(dire_c, "{" + xmlns + "}Direccion").text = api_fel.direccion
+        ET.SubElement(dire_c, "{" + xmlns + "}CodigoPostal").text = (
             self.company_id.zip or "01009"
         )
-        ET.SubElement(dire, "{" + xmlns + "}Municipio").text = (
+        ET.SubElement(dire_c, "{" + xmlns + "}Municipio").text = (
             self.company_id.city or "Guatemala"
         )
-        ET.SubElement(dire, "{" + xmlns + "}Departamento").text = (
+        ET.SubElement(dire_c, "{" + xmlns + "}Departamento").text = (
             self.company_id.state_id.name or "Guatemala"
         )
-        ET.SubElement(dire, "{" + xmlns + "}Pais").text = (
+        ET.SubElement(dire_c, "{" + xmlns + "}Pais").text = (
             self.company_id.country_id.code or "GT"
         )
 
         if self.partner_id.vat:
             vat = self.partner_id.vat
-            #vat = re.sub("\ |\?|\.|\!|\/|\;|\:|\-", "", vat)
             vat = re.sub(r"[\?!:/;. -]","", vat)
-            vat = vat.upper()
+            vt = vat.upper()
         else:
-            vat = "CF"
+            vt = "CF"
 
         rece = ET.SubElement(
             dem,
             "{" + xmlns + "}Receptor",
             CorreoReceptor=self.partner_id.email or "",
-            IDReceptor=vat,
+            IDReceptor=vt,
             NombreReceptor=self.partner_id.name,
         )
-        direc = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
-        ET.SubElement(direc, "{" + xmlns + "}Direccion").text = (
+        direc_c = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
+        ET.SubElement(direc_c, "{" + xmlns + "}Direccion").text = (
             self.partner_id.street or "Ciudad"
         )
-        ET.SubElement(direc, "{" + xmlns + "}CodigoPostal").text = (
+        ET.SubElement(direc_c, "{" + xmlns + "}CodigoPostal").text = (
             self.partner_id.zip or "01009"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Municipio").text = (
+        ET.SubElement(direc_c, "{" + xmlns + "}Municipio").text = (
             self.partner_id.city or "Guatemala"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Departamento").text = (
+        ET.SubElement(direc_c, "{" + xmlns + "}Departamento").text = (
             self.partner_id.state_id.name or "Guatemala"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Pais").text = (
+        ET.SubElement(direc_c, "{" + xmlns + "}Pais").text = (
             self.partner_id.country_id.code or "GT"
         )
 
@@ -573,30 +571,30 @@ class AccountInvoice(models.Model):
                     _("Las líneas de Factura deben de llevar impuesto (IVA).")
                 )
 
-            impuestos = ET.SubElement(item, "{" + xmlns + "}Impuestos")
-            impuesto = ET.SubElement(impuestos, "{" + xmlns + "}Impuesto")
+            impuestosss = ET.SubElement(item, "{" + xmlns + "}Impuestos")
+            impuest = ET.SubElement(impuestosss, "{" + xmlns + "}Impuesto")
             price_tax = line.price_total - line.price_subtotal
-            ET.SubElement(impuesto, "{" + xmlns + "}NombreCorto").text = tax
-            ET.SubElement(impuesto, "{" + xmlns + "}CodigoUnidadGravable").text = "1"
-            ET.SubElement(impuesto, "{" + xmlns + "}MontoGravable").text = str(
+            ET.SubElement(impuest, "{" + xmlns + "}NombreCorto").text = tax
+            ET.SubElement(impuest, "{" + xmlns + "}CodigoUnidadGravable").text = "1"
+            ET.SubElement(impuest, "{" + xmlns + "}MontoGravable").text = str(
                 round(line.price_subtotal, 2)
             )
-            ET.SubElement(impuesto, "{" + xmlns + "}MontoImpuesto").text = str(
+            ET.SubElement(impuest, "{" + xmlns + "}MontoImpuesto").text = str(
                 round(price_tax, 2)
             )
             ET.SubElement(item, "{" + xmlns + "}Total").text = str(
                 round(line.price_total, 2)
             )
         # Totales
-        totales = ET.SubElement(dem, "{" + xmlns + "}Totales")
-        timpuestos = ET.SubElement(totales, "{" + xmlns + "}TotalImpuestos")
+        tootales = ET.SubElement(dem, "{" + xmlns + "}Totales")
+        timpuestos = ET.SubElement(tootales, "{" + xmlns + "}TotalImpuestos")
         ET.SubElement(
             timpuestos,
             "{" + xmlns + "}TotalImpuesto",
             NombreCorto="IVA",
             TotalMontoImpuesto=str(round(self.amount_tax, 2)),
         )
-        ET.SubElement(totales, "{" + xmlns + "}GranTotal").text = str(
+        ET.SubElement(tootales, "{" + xmlns + "}GranTotal").text = str(
             round(self.amount_total, 2)
         )
 
@@ -662,25 +660,25 @@ class AccountInvoice(models.Model):
 
         xmlns = "http://www.sat.gob.gt/dte/fel/0.2.0"
         xsi = "http://www.w3.org/2001/XMLSchema-instance"
-        schemalocation = "http://www.sat.gob.gt/dte/fel/0.2.0"
+        scheemalocation = "http://www.sat.gob.gt/dte/fel/0.2.0"
         cno = "http://www.sat.gob.gt/face2/ComplementoFacturaEspecial/0.1.0"
 
         root = ET.Element(
             "{" + xmlns + "}GTDocumento",
             Version="0.1",
-            attrib={"{" + xsi + "}schemaLocation": schemalocation},
+            attrib={"{" + xsi + "}schemaLocation": scheemalocation},
         )
         doc = ET.SubElement(root, "{" + xmlns + "}SAT", ClaseDocumento="dte")
         dte = ET.SubElement(doc, "{" + xmlns + "}DTE", ID="DatosCertificados")
         dem = ET.SubElement(dte, "{" + xmlns + "}DatosEmision", ID="DatosEmision")
-        fecha_emision = dt.datetime.now(gettz("America/Guatemala")).__format__(
+        fechaa_emision = dt.datetime.now(gettz("America/Guatemala")).__format__(
             "%Y-%m-%dT%H:%M:%S.%f"
         )[:-3]
         ET.SubElement(
             dem,
             "{" + xmlns + "}DatosGenerales",
             CodigoMoneda="GTQ",
-            FechaHoraEmision=fecha_emision,
+            FechaHoraEmision=fechaa_emision,
             Tipo="FESP",
         )
         api_fel = self.env["api.data.configuration"].search(
@@ -698,72 +696,71 @@ class AccountInvoice(models.Model):
             NombreComercial=api_fel.nombre,
             NombreEmisor=self.company_id.name,
         )
-        dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
-        ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api_fel.direccion
-        ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = (
+        dire_s = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
+        ET.SubElement(dire_s, "{" + xmlns + "}Direccion").text = api_fel.direccion
+        ET.SubElement(dire_s, "{" + xmlns + "}CodigoPostal").text = (
             self.company_id.zip or "01009"
         )
-        ET.SubElement(dire, "{" + xmlns + "}Municipio").text = (
+        ET.SubElement(dire_s, "{" + xmlns + "}Municipio").text = (
             self.company_id.city or "Guatemala"
         )
-        ET.SubElement(dire, "{" + xmlns + "}Departamento").text = (
+        ET.SubElement(dire_s, "{" + xmlns + "}Departamento").text = (
             self.company_id.state_id.name or "Guatemala"
         )
-        ET.SubElement(dire, "{" + xmlns + "}Pais").text = (
+        ET.SubElement(dire_s, "{" + xmlns + "}Pais").text = (
             self.company_id.country_id.code or "GT"
         )
 
         if self.partner_id.vat:
             vat = self.partner_id.vat
-            #vat = re.sub("\ |\?|\.|\!|\/|\;|\:|\-", "", vat)
             vat = re.sub(r"[\?!:/;. -]","", vat)
-            vat = vat.upper()
+            vat_nit = vat.upper()
         else:
-            vat = "CF"
+            vat_nit = "CF"
 
         rece = ET.SubElement(
             dem,
             "{" + xmlns + "}Receptor",
             CorreoReceptor=self.partner_id.email or "",
-            IDReceptor=vat,
+            IDReceptor=vat_nit,
             NombreReceptor=self.partner_id.name,
         )
-        direc = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
-        ET.SubElement(direc, "{" + xmlns + "}Direccion").text = (
+        direc_s = ET.SubElement(rece, "{" + xmlns + "}DireccionReceptor")
+        ET.SubElement(direc_s, "{" + xmlns + "}Direccion").text = (
             self.partner_id.street or "Ciudad"
         )
-        ET.SubElement(direc, "{" + xmlns + "}CodigoPostal").text = (
+        ET.SubElement(direc_s, "{" + xmlns + "}CodigoPostal").text = (
             self.partner_id.zip or "01009"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Municipio").text = (
+        ET.SubElement(direc_s, "{" + xmlns + "}Municipio").text = (
             self.partner_id.city or "Guatemala"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Departamento").text = (
+        ET.SubElement(direc_s, "{" + xmlns + "}Departamento").text = (
             self.partner_id.state_id.name or "Guatemala"
         )
-        ET.SubElement(direc, "{" + xmlns + "}Pais").text = (
+        ET.SubElement(direc_s, "{" + xmlns + "}Pais").text = (
             self.partner_id.country_id.code or "GT"
         )
 
-        invoice_line = self.invoice_line_ids
+        invoice_l = self.invoice_line_ids
         items = ET.SubElement(dem, "{" + xmlns + "}Items")
         cnt = 0
         # LineasFactura
-        for line in invoice_line:
+        for line in invoice_l:
             cnt += 1
-            bos = "B"
+            bss = "B"
             if line.product_id.type == "service":
-                bos = "S"
+                bss = "S"
 
             # Item
             item = ET.SubElement(
-                items, "{" + xmlns + "}Item", BienOServicio=bos, NumeroLinea=str(cnt)
+                items, "{" + xmlns + "}Item", BienOServicio=bss, NumeroLinea=str(cnt)
             )
 
             ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
             ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
             ET.SubElement(item, "{" + xmlns + "}Descripcion").text = (
-                str(line.product_id.default_code) + " |" + str(line.product_id.name)
+                str(line.product_id.default_code) + "|" + str(line.product_id.name)
             )
             ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(
                 line.price_unit
@@ -782,30 +779,30 @@ class AccountInvoice(models.Model):
                     _("Las líneas de Factura deben de llevar impuesto (IVA).")
                 )
 
-            impuestos = ET.SubElement(item, "{" + xmlns + "}Impuestos")
-            impuesto = ET.SubElement(impuestos, "{" + xmlns + "}Impuesto")
+            impuestoss = ET.SubElement(item, "{" + xmlns + "}Impuestos")
+            impuestoo = ET.SubElement(impuestoss, "{" + xmlns + "}Impuesto")
             price_tax = line.price_total - line.price_subtotal
-            ET.SubElement(impuesto, "{" + xmlns + "}NombreCorto").text = tax
-            ET.SubElement(impuesto, "{" + xmlns + "}CodigoUnidadGravable").text = "1"
-            ET.SubElement(impuesto, "{" + xmlns + "}MontoGravable").text = str(
+            ET.SubElement(impuestoo, "{" + xmlns + "}NombreCorto").text = tax
+            ET.SubElement(impuestoo, "{" + xmlns + "}CodigoUnidadGravable").text = "1"
+            ET.SubElement(impuestoo, "{" + xmlns + "}MontoGravable").text = str(
                 round(line.price_subtotal, 2)
             )
-            ET.SubElement(impuesto, "{" + xmlns + "}MontoImpuesto").text = str(
+            ET.SubElement(impuestoo, "{" + xmlns + "}MontoImpuesto").text = str(
                 round(price_tax, 2)
             )
             ET.SubElement(item, "{" + xmlns + "}Total").text = str(
                 round(line.price_total, 2)
             )
         # Totales
-        totales = ET.SubElement(dem, "{" + xmlns + "}Totales")
-        timpuestos = ET.SubElement(totales, "{" + xmlns + "}TotalImpuestos")
+        totaless = ET.SubElement(dem, "{" + xmlns + "}Totales")
+        timpuestos = ET.SubElement(totaless, "{" + xmlns + "}TotalImpuestos")
         ET.SubElement(
             timpuestos,
             "{" + xmlns + "}TotalImpuesto",
             NombreCorto="IVA",
             TotalMontoImpuesto=str(round(self.amount_tax, 2)),
         )
-        ET.SubElement(totales, "{" + xmlns + "}GranTotal").text = str(
+        ET.SubElement(totaless, "{" + xmlns + "}GranTotal").text = str(
             round(self.amount_total, 2)
         )
 

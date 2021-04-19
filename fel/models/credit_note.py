@@ -16,44 +16,44 @@ import re
 def set_data_for_invoice_credit(self):
     xmlns = "http://www.sat.gob.gt/dte/fel/0.2.0"
     xsi = "http://www.w3.org/2001/XMLSchema-instance"
-    schemalocation = "http://www.sat.gob.gt/dte/fel/0.2.0"
+    schemalocatiion = "http://www.sat.gob.gt/dte/fel/0.2.0"
     cno = "http://www.sat.gob.gt/face2/ComplementoReferenciaNota/0.1.0"
 
     root = ET.Element(
         "{" + xmlns + "}GTDocumento",
         Version="0.1",
-        attrib={"{" + xsi + "}schemaLocation": schemalocation},
+        attrib={"{" + xsi + "}schemaLocation": schemalocatiion},
     )
     doc = ET.SubElement(root, "{" + xmlns + "}SAT", ClaseDocumento="dte")
     dte = ET.SubElement(doc, "{" + xmlns + "}DTE", ID="DatosCertificados")
     dem = ET.SubElement(dte, "{" + xmlns + "}DatosEmision", ID="DatosEmision")
-    fecha_emision = dt.datetime.now(gettz("America/Guatemala")).__format__(
+    fecha_eemision = dt.datetime.now(gettz("America/Guatemala")).__format__(
         "%Y-%m-%dT%H:%M:%S.%f"
     )[:-3]
     ET.SubElement(
         dem,
         "{" + xmlns + "}DatosGenerales",
         CodigoMoneda="GTQ",
-        FechaHoraEmision=fecha_emision,
+        FechaHoraEmision=fecha_eemision,
         Tipo="NCRE",
     )
-    api_fel = self.env["api.data.configuration"].search(
+    api_credit = self.env["api.data.configuration"].search(
         [("code_est", "=", self.journal_id.code_est)], limit=1
     )
-    if not api_fel:
+    if not api_credit:
         return False
     emi = ET.SubElement(
         dem,
         "{" + xmlns + "}Emisor",
         AfiliacionIVA="GEN",
-        CodigoEstablecimiento=api_fel.code_est,
+        CodigoEstablecimiento=api_credit.code_est,
         CorreoEmisor=self.company_id.email,
         NITEmisor=self.company_id.vat,
-        NombreComercial=api_fel.nombre,
+        NombreComercial=api_credit.nombre,
         NombreEmisor=self.company_id.name,
     )
     dire = ET.SubElement(emi, "{" + xmlns + "}DireccionEmisor")
-    ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api_fel.direccion
+    ET.SubElement(dire, "{" + xmlns + "}Direccion").text = api_credit.direccion
     ET.SubElement(dire, "{" + xmlns + "}CodigoPostal").text = (
         self.company_id.zip or "01009"
     )
@@ -68,8 +68,8 @@ def set_data_for_invoice_credit(self):
     )
 
     if self.partner_id.vat:
-        vat = self.partner_id.vat
-        vat = re.sub(r"[\?!:/;. -]","", vat)
+        nit = self.partner_id.vat
+        vat = re.sub(r"[\?!:/;. -]","", nit)
         vat = vat.upper()
     else:
         vat = "CF"
@@ -86,7 +86,7 @@ def set_data_for_invoice_credit(self):
         self.partner_id.street or "Ciudad"
     )
     ET.SubElement(direc, "{" + xmlns + "}CodigoPostal").text = (
-        self.partner_id.zip or "01009"
+        self.partner_id.zip or "01010"
     )
     ET.SubElement(direc, "{" + xmlns + "}Municipio").text = (
         self.partner_id.city or "Guatemala"
@@ -104,19 +104,19 @@ def set_data_for_invoice_credit(self):
     # LineasFactura
     for line in invoice_line:
         cnt += 1
-        bos = "B"
+        bs = "B"
         if line.product_id.type == "service":
-            bos = "S"
+            bs = "S"
 
         # Item
         item = ET.SubElement(
-            items, "{" + xmlns + "}Item", BienOServicio=bos, NumeroLinea=str(cnt)
+            items, "{" + xmlns + "}Item", BienOServicio=bs, NumeroLinea=str(cnt)
         )
 
         ET.SubElement(item, "{" + xmlns + "}Cantidad").text = str(line.quantity)
         ET.SubElement(item, "{" + xmlns + "}UnidadMedida").text = "UND"
         ET.SubElement(item, "{" + xmlns + "}Descripcion").text = (
-            str(line.product_id.default_code) + " |" + str(line.product_id.name)
+            str(line.product_id.default_code) + "|" + str(line.product_id.name)
         )
         ET.SubElement(item, "{" + xmlns + "}PrecioUnitario").text = str(line.price_unit)
         ET.SubElement(item, "{" + xmlns + "}Precio").text = str(

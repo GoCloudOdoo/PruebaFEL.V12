@@ -3,8 +3,6 @@
 from odoo import api
 from datetime import datetime
 
-
-
 @api.multi
 def set_adendas(self, et, doc, xmlns):
 
