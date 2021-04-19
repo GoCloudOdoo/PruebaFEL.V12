@@ -6,9 +6,9 @@ from datetime import datetime
 
 
 @api.multi
-def set_adendas(self, ET, doc, xmlns):
+def set_adendas(self, et, doc, xmlns):
 
-    ade = ET.SubElement(doc, "{" + xmlns + "}Adenda")
+    ade = et.SubElement(doc, "{" + xmlns + "}Adenda")
     date_due = self.date_due
     date_due = datetime.strptime(str(date_due), "%Y-%m-%d")
     formato2 = "%d-%m-%Y"
@@ -20,15 +20,15 @@ def set_adendas(self, ET, doc, xmlns):
     if self.partner_id.mobile:
         mobile = self.partner_id.mobile
     telefono = phone + " " + mobile
-    ET.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
-    ET.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name
-    ET.SubElement(ade, "NOTAS").text = self.comment
-    ET.SubElement(ade, "REFERENCIA").text = self.reference
-    ET.SubElement(ade, "INCOTERM").text = self.incoterm_id.name
-    ET.SubElement(ade, "ORIGEN").text = self.origin
-    ET.SubElement(ade, "VENDEDOR").text = self.user_id.name
-    ET.SubElement(ade, "NUMERO-INTERNO").text = self.number
-    ET.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name
-    ET.SubElement(ade, "TELEFONO").text = telefono
+    et.SubElement(ade, "FECHA_VENCIMIENTO").text = date_due
+    et.SubElement(ade, "DIAS_CREDITO").text = self.payment_term_id.name
+    et.SubElement(ade, "NOTAS").text = self.comment
+    et.SubElement(ade, "REFERENCIA").text = self.reference
+    et.SubElement(ade, "INCOTERM").text = self.incoterm_id.name
+    et.SubElement(ade, "ORIGEN").text = self.origin
+    et.SubElement(ade, "VENDEDOR").text = self.user_id.name
+    et.SubElement(ade, "NUMERO-INTERNO").text = self.number
+    et.SubElement(ade, "REFERENCIA-CLIENTE").text = self.name
+    et.SubElement(ade, "TELEFONO").text = telefono
 
-    return ET
+    return et
