@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
          <record id="api_configuration_form_view" model="ir.ui.view">
             <field name="name">api.data.configuration.form</field>
             <field name="model">api.data.configuration</field>
@@ -58,5 +57,4 @@
             id="payment_api_menu"
             parent="account.menu_finance_configuration"
             sequence="44" />
-   </data>
 </odoo>

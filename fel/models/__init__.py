@@ -26,3 +26,6 @@ from . import account_journal
 from . import credit_note
 from . import invoice_cancel
 from . import account_invoice_send
+from . import web_service
+from . import adendas
+
