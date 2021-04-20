@@ -1,11 +1,10 @@
 # -*- encoding: UTF-8 -*-
 
-from odoo import api, _
+from odoo import api, _, exceptions
 import xml.etree.cElementTree as ET
 from datetime import datetime, timedelta
 import datetime as dt
 from dateutil.tz import gettz
-from odoo.exceptions import UserError
 from . import adendas
 import base64
 from random import randint
@@ -129,7 +128,7 @@ def set_data_for_invoice_credit(self):
         if line.invoice_line_tax_ids:
             tax = "IVA"
         else:
-            raise UserError(_("Las líneas de Factura deben de llevar impuesto (IVA)."))
+            raise exceptions.UserError(_("Las líneas de Factura deben de llevar impuesto (IVA)."))
 
         impuestos = ET.SubElement(item, "{" + xmlns + "}Impuestos")
         impuesto = ET.SubElement(impuestos, "{" + xmlns + "}Impuesto")
