@@ -16,6 +16,7 @@
             'views/api_view.xml',
             'views/account_journal_view.xml',
             'views/account_invoice_view.xml',
+            'demo/account_tax_demo.xml'
             ],
     'demo': [],
     'sequence': 1,
