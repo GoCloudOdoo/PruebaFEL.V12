@@ -624,7 +624,7 @@ class AccountInvoice(models.Model):
         retencion = 0
         for ret in self.tax_line_ids:
             if ret.amount < 0:
-                retencion = ret.amount * -1        
+                retencion = ret.amount * -1
         complementos = ET.SubElement(dem, "{" + xmlns + "}Complementos")
         complemento = ET.SubElement(complementos, "{" + xmlns + "}Complemento", IDComplemento=str(randint(1,99999)), NombreComplemento="FacturaEspecial", URIComplemento=cno)
         retenciones = ET.SubElement(complemento, "{" + cno + "}RetencionesFacturaEspecial", Version="1")
