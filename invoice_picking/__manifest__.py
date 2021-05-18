@@ -8,7 +8,7 @@
     'maintainer': 'Osmin Cano',
     'website': 'http://imeqmo.com',
     'category': 'account',
-    'depends': ['account', 'stock'],
+    'depends': ['sale', 'account', 'stock', 'sale_stock'],
     'license': 'AGPL-3',
     'data': [
                 'views/picking_view.xml',

@@ -14,5 +14,45 @@
                 </field>
         </record>
 
+        <record id="view_stock_kanban_invoice_inherit" model="ir.ui.view">
+             <field name="name">stock.picking.inherit.invoice</field>
+             <field name="model">stock.picking</field>
+             <field name="inherit_id" ref="stock.stock_picking_kanban"/>
+             <field name="arch" type="xml">
+                <data>
+                     <xpath expr="//kanban[1]/templates[1]" position="before">
+                            <field name="scheduled_date"/>
+                            <field name="factura_id"/>
+                            <field name="plazo_de_pago"/>
+                            <field name="estado_factura"/>
+                            <field name="incoterm_id"/>               
+                    </xpath>                 
+                     <xpath expr="//kanban[1]/templates[1]/t[1]/div[1]/div[1]" position="after">
+                         <div>
+                          <div>
+                            <strong>
+                             <t t-esc="record.factura_id.value"/>
+                              <t t-esc="record.estado_factura.value"/>
+                            </strong>
+                          </div>
+                          <div>
+                            <strong>
+                              <t t-esc="record.plazo_de_pago.value"/>
+                            </strong>
+                          </div>
+                          <div>
+                            <strong>
+                             <t t-esc="record.incoterm_id.value"/>
+                            </strong>
+                          </div>
+                        </div>
+                    </xpath>
+                    <xpath expr="//div[hasclass('oe_kanban_bottom_right')]" position="replace">
+                         <t t-esc="record.scheduled_date.value and record.scheduled_date.value.split(' ')[0] or False"/>
+                    </xpath>
+                </data>
+             </field>
+        </record>
+
 </odoo>
 
