@@ -21,12 +21,13 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         res = super(AccountInvoice, self).action_invoice_open()
-        origin = self.origin
-        origin = origin.split(",")
-        for name in origin:
-            inv = env["stock.picking"].search([("origin","=",name.strip())])
-            if inv:
-               for picking in inv:
-                   picking.write({'factura_id': self.id})
+        if self.origin
+           origin = self.origin
+           origin = origin.split(",")
+           for name in origin:
+               inv = env["stock.picking"].search([("origin","=",name.strip())])
+               if inv:
+                  for picking in inv:
+                      picking.write({'factura_id': self.id})
         return res
 
