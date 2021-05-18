@@ -9,6 +9,7 @@
                         <field name="origin" position="after">
                                 <field name="factura_id" readonly="1"/>
                                 <field name="estado_factura"/>
+                                <field name="plazo_de_pago"/>
                         </field>
                 </field>
         </record>

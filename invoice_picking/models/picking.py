@@ -13,6 +13,7 @@ class StockPicking(models.Model):
             ('paid', 'Pagado'),
             ('cancel', 'Cancelado'),
         ], string='Estado Factura', related='factura_id.state')
+    plazo_de_pago = fields.Many2one('account.payment.term', string='Plazo de Pago', related='sale_id.payment_term_id.id')
 
 
 class AccountInvoice(models.Model):
