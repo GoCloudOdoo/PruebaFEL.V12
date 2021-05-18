@@ -5,8 +5,14 @@ from odoo import api, fields, models, _
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
-    factura_id = fields.Many2one("account.invoice", string="Factura")
-    estado_factura = fields.Char("Estado Factura", related="factura_id.state")
+    factura_id = fields.Many2one('account.invoice', string='Factura')
+    estado_factura = fields.Selection([
+            ('draft','Borrador'),
+            ('open', 'Abierto'),
+            ('in_payment', 'En proceso de pago'),
+            ('paid', 'Pagado'),
+            ('cancel', 'Cancelado'),
+        ], string='Estado Factura', related='factura_id.state')
 
 
 class AccountInvoice(models.Model):
