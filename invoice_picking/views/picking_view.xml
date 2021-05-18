@@ -10,6 +10,7 @@
                                 <field name="factura_id" readonly="1"/>
                                 <field name="estado_factura"/>
                                 <field name="plazo_de_pago"/>
+                                <field name="incoterm_id"/>
                         </field>
                 </field>
         </record>
