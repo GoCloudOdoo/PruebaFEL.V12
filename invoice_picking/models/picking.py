@@ -21,7 +21,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         res = super(AccountInvoice, self).action_invoice_open()
-        if self.origin
+        if self.origin:
            origin = self.origin
            origin = origin.split(",")
            for name in origin:
