@@ -25,7 +25,7 @@ class AccountInvoice(models.Model):
            origin = self.origin
            origin = origin.split(",")
            for name in origin:
-               inv = env["stock.picking"].search([("origin","=",name.strip())])
+               inv = self.env["stock.picking"].search([("origin","=",name.strip())])
                if inv:
                   for picking in inv:
                       picking.write({'factura_id': self.id})
